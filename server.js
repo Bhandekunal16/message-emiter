@@ -2,12 +2,13 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
+const query = require("./database");
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const activeUsers = {};
-let messages = [];
+let messages = new query().getMessage();
 
 app.use(express.json());
 app.use(cors());
@@ -47,6 +48,7 @@ io.on("connection", (socket) => {
 app.post("/api/messages", (req, res) => {
   const { username, message } = req.body;
   messages.push({ username, message });
+  new query().create({ username, message });
   io.emit("chat message", `${username}: ${message}`);
   res.status(200).json({ message: "Message sent successfully" });
 });
