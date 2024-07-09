@@ -8,7 +8,6 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const activeUsers = {};
-let messages = new query().getMessage();
 
 app.use(express.json());
 app.use(cors());
@@ -53,7 +52,8 @@ app.post("/api/messages", (req, res) => {
   res.status(200).json({ message: "Message sent successfully" });
 });
 
-app.get("/api/messages", (req, res) => {
+app.get("/api/messages", async (req, res) => {
+  let messages = await new query().getMessage();
   res.status(200).json(messages.data);
 });
 
