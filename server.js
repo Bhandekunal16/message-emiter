@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
 
 app.post("/api/messages", (req, res) => {
   const { username, message } = req.body;
-  messages.push({ username, message });
+  // messages.push({ username, message });
   new query().create({ username, message });
   io.emit("chat message", `${username}: ${message}`);
   res.status(200).json({ message: "Message sent successfully" });
