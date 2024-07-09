@@ -54,7 +54,7 @@ app.post("/api/messages", (req, res) => {
 });
 
 app.get("/api/messages", (req, res) => {
-  res.status(200).json(messages);
+  res.status(200).json(messages.data);
 });
 
 const PORT = process.env.PORT || 3000;
