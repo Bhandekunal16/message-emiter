@@ -19,8 +19,7 @@ class query {
 
   async getMessage() {
     const array = await session.run(
-      "match (n:Message) return collect(properties(n)) as message",
-      { username: body.username, message: body.message }
+      "match (n:Message) return collect(properties(n)) as message"
     );
 
     return { data: array.records[0].get("message") };
