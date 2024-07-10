@@ -4,11 +4,96 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat Application</title>
+    <style>
+      .dashboard-header h1 {
+        margin-left: 5%;
+      }
+
+      .dashboard-header {
+        background-color: #4d4a57;
+      }
+
+      .messages-dashboard {
+        height: 70vh;
+        width: 97vw;
+        border: dotted 1px #000;
+        overflow: auto;
+        margin: 1%;
+        border-radius: 8px;
+        background-color: #292c33;
+        color: #f4f4f4;
+      }
+
+      .messages-dashboard p {
+        padding: 1%;
+        border: #374754 solid 1px;
+      }
+
+      .messages-sender-dashboard {
+        width: 95vw;
+        padding: 1%;
+        border: dotted 1px #000;
+        overflow: hidden;
+        margin: 1%;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        border-radius: 8px;
+        background-color: #292c33;
+      }
+
+      .messages-sender-dashboard button {
+        padding: 1%;
+        width: fit-content;
+        border-radius: 8px;
+        background-color: #0989fc;
+        color: #fff;
+        border: transparent;
+      }
+
+      .messages-sender-dashboard button:hover {
+        background-color: #213a63;
+      }
+
+      .messages-sender-dashboard input {
+        padding: 1%;
+        width: 40vw;
+        border-radius: 8px;
+        border: transparent;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+          "Helvetica Neue", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #535864;
+        color: #f4f4f4;
+      }
+
+      code {
+        font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+          monospace;
+      }
+      * {
+        padding: 0%;
+        margin: 0%;
+      }
+    </style>
   </head>
   <body>
     <div id="chat-container">
-      <p id="messages"></p>
-      <form id="message-form">
+      <div class="dashboard-header">
+        <h1>Message</h1>
+      </div>
+
+      <div class="messages-dashboard">
+        <p id="messages"></p>
+      </div>
+
+      <form id="message-form" class="messages-sender-dashboard">
         <input id="message-input" autocomplete="off" /><button>Send</button>
       </form>
     </div>
@@ -34,22 +119,11 @@
         document.getElementById("messages").appendChild(li);
       });
 
-      socket.on("backup", (messages) => {
-        const messageList = document.getElementById("messages");
-        messageList.innerHTML = ""; 
-        messages.forEach((message) => {
-            console.log(message)
-          const li = document.createElement("p");
-          li.textContent = message;
-          messageList.appendChild(li);
-        });
-      });
-
       socket.on("chats", (chats) => {
         const messageList = document.getElementById("messages");
         messageList.innerHTML = "";
         chats.forEach((chat) => {
-            console.log(chat)
+          console.log(chat);
           const li = document.createElement("p");
           li.textContent = chat.message;
           messageList.appendChild(li);
