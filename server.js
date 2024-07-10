@@ -13,9 +13,9 @@ const PORT = process.env.PORT || 3000;
 io.on("connection", (socket) => {
   console.log("New client connected");
 
-  socket.on("list",  (list) => {
+  socket.on("list", async (list) => {
     list
-      ? io.emit("backup",  new query().getMessage())
+      ? io.emit("backup", await new query().getMessage())
       : io.emit("backup", []);
   });
 
