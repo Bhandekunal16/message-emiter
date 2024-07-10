@@ -1,63 +1,36 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
-const cors = require("cors");
 const query = require("./database");
+const socketIo = require("socket.io");
+const chats = [];
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const activeUsers = {};
 
-
-app.use(express.json());
-app.use(cors());
-
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  next();
-});
+const PORT = process.env.PORT || 3000;
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
+  console.log("New client connected");
 
-  socket.on("join", (username) => {
-    activeUsers[socket.id] = username;
-    console.log(`${username} joined`);
+  socket.on("list",  (list) => {
+    list
+      ? io.emit("backup",  new query().getMessage())
+      : io.emit("backup", []);
+  });
+
+  socket.on("message", async (message) => {
+    console.log("Message received:", message);
+    await new query().create(message);
+    io.emit("message", message);
+    chats.push(message);
+    const list = await new query().getMessage();
+    io.emit("chats", chats.length > 0 ? chats : list.data);
   });
 
   socket.on("disconnect", () => {
-    const username = activeUsers[socket.id];
-    if (username) {
-      console.log(`${username} disconnected`);
-      delete activeUsers[socket.id];
-    }
-  });
-
-  socket.on("chat message", (message) => {
-    const username = activeUsers[socket.id];
-    if (username) {
-      console.log(`${username}: ${message}`);
-      io.emit("chat message", `${username}: ${message}`);
-    }
+    console.log("Client disconnected");
   });
 });
 
-app.post("/", async (req, res) => {
-  const { username, message } = req.body;
-  await new query().create({ username, message });
-  io.emit("chat message", `${username}: ${message}`);
-  res.status(200).json({ message: "Message sent successfully" });
-});
-
-app.get("/", async (req, res) => {
-  let messages = await new query().getMessage();
-  res.status(200).json(messages.data);
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
