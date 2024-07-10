@@ -3,16 +3,12 @@ const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
 const query = require("./database");
-const redis = require("redis");
-const { promisify } = require("util");
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const activeUsers = {};
-const redisClient = redis.createClient();
-const getAsync = promisify(redisClient.get).bind(redisClient);
-const setAsync = promisify(redisClient.set).bind(redisClient);
+
 
 app.use(express.json());
 app.use(cors());
@@ -27,33 +23,32 @@ app.use((req, res, next) => {
 io.on("connection", (socket) => {
   console.log("A user connected");
 
-  socket.on("join", async (username) => {
-    await setAsync(socket.id, username);
+  socket.on("join", (username) => {
+    activeUsers[socket.id] = username;
     console.log(`${username} joined`);
   });
 
-  socket.on("disconnect", async () => {
-    const username = await getAsync(socket.id);
+  socket.on("disconnect", () => {
+    const username = activeUsers[socket.id];
     if (username) {
       console.log(`${username} disconnected`);
-      redisClient.del(socket.id);
+      delete activeUsers[socket.id];
     }
   });
 
-  socket.on("chat message", async (message) => {
-    const username = await getAsync(socket.id);
+  socket.on("chat message", (message) => {
+    const username = activeUsers[socket.id];
     if (username) {
       console.log(`${username}: ${message}`);
-      io.emit("chat message", message);
-      // io.emit("chat message", `${username}: ${message}`);
+      io.emit("chat message", `${username}: ${message}`);
     }
   });
 });
 
 app.post("/", async (req, res) => {
   const { username, message } = req.body;
-  io.emit("chat message", `${username}: ${message}`);
   await new query().create({ username, message });
+  io.emit("chat message", `${username}: ${message}`);
   res.status(200).json({ message: "Message sent successfully" });
 });
 
