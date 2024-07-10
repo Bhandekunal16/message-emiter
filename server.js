@@ -44,14 +44,14 @@ io.on("connection", (socket) => {
   });
 });
 
-app.post("/api/messages", async (req, res) => {
+app.post("/", async (req, res) => {
   const { username, message } = req.body;
   await new query().create({ username, message });
   io.emit("chat message", `${username}: ${message}`);
   res.status(200).json({ message: "Message sent successfully" });
 });
 
-app.get("/api/messages", async (req, res) => {
+app.get("/", async (req, res) => {
   let messages = await new query().getMessage();
   res.status(200).json(messages.data);
 });
