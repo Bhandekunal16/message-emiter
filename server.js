@@ -3,14 +3,15 @@ const http = require("http");
 const query = require("./database");
 const socketIo = require("socket.io");
 const chats = [];
+const path = require('path')
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: "*", 
-    methods: ["GET", "POST"]
-  }
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
 
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
+});
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "./index.html"));
 });
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

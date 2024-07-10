@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat Application</title>
+  </head>
+  <body>
+    <div id="chat-container">
+      <p id="messages"></p>
+      <form id="message-form">
+        <input id="message-input" autocomplete="off" /><button>Send</button>
+      </form>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      document
+        .getElementById("message-form")
+        .addEventListener("submit", (e) => {
+          e.preventDefault();
+          const input = document.getElementById("message-input");
+          if (input.value) {
+            socket.emit("message", { username: "user1", message: input.value });
+            input.value = "";
+          }
+        });
+
+      socket.on("message", (message) => {
+        const li = document.createElement("p");
+        li.textContent = message;
+        socket.emit("message", { username: "user1", message: input.value });
+        document.getElementById("messages").appendChild(li);
+      });
+
+      socket.on("backup", (messages) => {
+        const messageList = document.getElementById("messages");
+        messageList.innerHTML = ""; 
+        messages.forEach((message) => {
+            console.log(message)
+          const li = document.createElement("p");
+          li.textContent = message;
+          messageList.appendChild(li);
+        });
+      });
+
+      socket.on("chats", (chats) => {
+        const messageList = document.getElementById("messages");
+        messageList.innerHTML = "";
+        chats.forEach((chat) => {
+            console.log(chat)
+          const li = document.createElement("p");
+          li.textContent = chat.message;
+          messageList.appendChild(li);
+        });
+      });
+
+      socket.emit("list", true);
+    </script>
+  </body>
+</html>
