@@ -44,7 +44,8 @@ io.on("connection", (socket) => {
     const username = await getAsync(socket.id);
     if (username) {
       console.log(`${username}: ${message}`);
-      io.emit("chat message", `${username}: ${message}`);
+      io.emit("chat message", message);
+      // io.emit("chat message", `${username}: ${message}`);
     }
   });
 });

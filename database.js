@@ -10,7 +10,7 @@ const session = driver.session();
 class query {
   async create(body) {
     const result = await session.run(
-      "CREATE (m:Message {username: $username, message: $message}) RETURN m",
+      "MERGE (m:Message {username: $username, message: $message}) RETURN m",
       { username: body.username, message: body.message }
     );
 
